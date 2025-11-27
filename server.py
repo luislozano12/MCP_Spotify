@@ -4,9 +4,7 @@ from spotipy.oauth2 import SpotifyOAuth
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 
-# --- CARGA INTELIGENTE DE .ENV ---
-# Esto obliga a buscar el .env en la misma carpeta que este script,
-# sin importar desde dónde lo ejecute Claude.
+#Carga del env
 current_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(current_dir, '.env')
 load_dotenv(env_path)
@@ -20,7 +18,7 @@ REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 if not CLIENT_ID or not CLIENT_SECRET:
     raise ValueError("Error: No se encontraron las credenciales en el archivo .env")
 
-# --- LISTA DE PERMISOS ---
+#Permisos para el correcto funcionamiento
 SCOPE = (
     "user-read-playback-state "
     "user-modify-playback-state "
@@ -32,7 +30,7 @@ SCOPE = (
     "playlist-read-collaborative"
 )
 
-# --- INICIALIZACIÓN ---
+#Inicializacion del server y la api de spotify
 mcp = FastMCP("Spotify Ultimate Server")
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
@@ -42,10 +40,8 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     scope=SCOPE
 ))
 
-# ==========================================
-# 1. CONTROL BÁSICO Y DISPOSITIVOS
-# ==========================================
 
+#Control basico
 @mcp.tool()
 def listar_dispositivos() -> str:
     """Muestra los dispositivos activos. Útil si la música no suena."""
@@ -111,10 +107,8 @@ def transferir_musica_a_dispositivo(nombre_dispositivo: str) -> str:
         return f"No encontré '{nombre_dispositivo}'."
     except Exception as e: return f"Error: {e}"
 
-# ==========================================
-# 2. GESTIÓN DE COLA Y CONTEXTO
-# ==========================================
 
+#Gestion de queque
 @mcp.tool()
 def agregar_a_fila(busqueda: str) -> str:
     """Agrega una canción a la cola de espera."""
@@ -146,10 +140,7 @@ def cambiar_modo_reproduccion(aleatorio: bool = False, repetir: str = 'off') -> 
         return f"Modo: Shuffle={aleatorio}, Repeat={repetir}"
     except Exception as e: return f"Error: {e}"
 
-# ==========================================
-# 3. PLAYLISTS Y BIBLIOTECA
-# ==========================================
-
+#Manejo de playlists y bibliotecas
 @mcp.tool()
 def guardar_en_favoritos() -> str:
     """Guarda (Like) la canción actual en tu biblioteca."""
@@ -201,10 +192,7 @@ def agregar_a_playlist_existente(nombre_playlist: str) -> str:
         return f"Agregada a '{found_name}'."
     except Exception as e: return f"Error: {e}"
 
-# ==========================================
-# 4. ANÁLISIS, DESCUBRIMIENTO Y PODCASTS
-# ==========================================
-
+#Analisis de datos 
 @mcp.tool()
 def mis_top_canciones(plazo: str = "short_term") -> str:
     """Tus canciones más escuchadas (short_term, medium_term, long_term)."""
@@ -290,4 +278,5 @@ def recomendar_por_parametros(genero: str, energia: float = None, felicidad: flo
     except Exception as e: return f"Error: {e}"
 
 if __name__ == "__main__":
+
     mcp.run()
